@@ -12,9 +12,23 @@ const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
 const waClient = new WAClient({
     authStrategy: new LocalAuth(),
     puppeteer: {
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        args: [
+            '--no-sandbox', 
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu'
+        ],
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null
     }
+});
+
+// "Mock" d'un serveur HTTP pour que Render sache que notre "Web Service" tourne
+const http = require('http');
+http.createServer((req, res) => {
+    res.writeHead(200);
+    res.end('Bot is running');
+}).listen(3000, () => {
+    console.log('🌐 Web server is running (Port 3000)');
 });
 
 // Initialisation du Bot Discord
