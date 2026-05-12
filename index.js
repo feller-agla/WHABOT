@@ -12,7 +12,8 @@ const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
 const waClient = new WAClient({
     authStrategy: new LocalAuth(),
     puppeteer: {
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null
     }
 });
 
