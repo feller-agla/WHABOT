@@ -11,18 +11,18 @@ WORKDIR /home/pptruser/app
 # Copy package files
 COPY package*.json ./
 
-# Installer proprement en tant que root, puis forcer l'installation de Chromium
-RUN npm install
-RUN PUPPETEER_SKIP_DOWNLOAD=false npx puppeteer browsers install chrome
-
-# Copy application files
-COPY . .
-
-# Change ownership of the app directory to pptruser
+# Change ownership of the app directory to pptruser BEFORE installing
 RUN chown -R pptruser:pptruser /home/pptruser/app
 
 # Switch back to non-root user
 USER pptruser
+
+# Installer proprement en tant que pptruser pour que le cache aille dans /home/pptruser/.cache/puppeteer
+RUN npm install
+RUN PUPPETEER_SKIP_DOWNLOAD=false npx puppeteer browsers install chrome
+
+# Copy application files with proper ownership
+COPY --chown=pptruser:pptruser . .
 
 # Expose a port
 EXPOSE 3000
