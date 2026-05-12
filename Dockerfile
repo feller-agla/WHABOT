@@ -11,8 +11,9 @@ WORKDIR /home/pptruser/app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies as root to avoid permission errors
+# Installer proprement en tant que root, puis forcer l'installation de Chromium
 RUN npm install
+RUN PUPPETEER_SKIP_DOWNLOAD=false npx puppeteer browsers install chrome
 
 # Copy application files
 COPY . .
@@ -23,7 +24,10 @@ RUN chown -R pptruser:pptruser /home/pptruser/app
 # Switch back to non-root user
 USER pptruser
 
-# Expose a port (Render requires this to know the app is running in a Web Service)
+# Variable environnement pour forcer PUPPETEER à utiliser le Chrome du système docker
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+
+# Expose a port
 EXPOSE 3000
 
 # Start command
