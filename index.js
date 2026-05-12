@@ -17,8 +17,8 @@ const waClient = new WAClient({
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
             '--disable-gpu'
-        ],
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome'
+        ]
+        // executablePath is removed so puppeteer will use its own downloaded chromium in Docker
     }
 });
 
