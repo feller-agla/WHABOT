@@ -24,11 +24,41 @@ const waClient = new WAClient({
 
 // "Mock" d'un serveur HTTP pour que Render sache que notre "Web Service" tourne
 const http = require('http');
+
+let latestQrData = '';
+
 http.createServer((req, res) => {
-    res.writeHead(200);
-    res.end('Bot is running');
+    if (req.url === '/qr') {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        if (latestQrData) {
+            // Afficher le QR code avec une image générée dynamiquement à partir des données SVG ou data URI si possible, 
+            // mais on va plutôt utiliser une API publique pour générer l'image depuis le texte
+            res.end(`
+                <html>
+                    <body style="display:flex; justify-content:center; align-items:center; height:100vh; background-color:#222; color:white; font-family:sans-serif;">
+                        <div style="text-align:center;">
+                            <h2>Scanner le QR Code</h2>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(latestQrData)}" alt="QR Code" />
+                            <p>Actualisez la page si le QR code expire.</p>
+                        </div>
+                    </body>
+                </html>
+            `);
+        } else {
+            res.end(`
+                <html>
+                    <body style="display:flex; justify-content:center; align-items:center; height:100vh; background-color:#222; color:white; font-family:sans-serif;">
+                        <h2>Pas de QR code pour le moment. Soit le bot est déjà connecté, soit il charge...</h2>
+                    </body>
+                </html>
+            `);
+        }
+    } else {
+        res.writeHead(200);
+        res.end('Bot is running. Go to /qr to scan WhatsApp code.');
+    }
 }).listen(3000, () => {
-    console.log('🌐 Web server is running (Port 3000)');
+    console.log('🌐 Web server is running (Port 3000). To scan QR code go to /qr');
 });
 
 // Initialisation du Bot Discord
@@ -42,12 +72,17 @@ const discordClient = new DiscordClient({
 
 // --- PARTIE WHATSAPP ---
 
+let isConnected = false;
+
 waClient.on('qr', (qr) => {
-    console.log('📱 Veuillez scanner ce QR code avec WhatsApp (Appareils connectés) :');
+    latestQrData = qr; // Sauvegarder pour l'affichage via le web server
+    console.log('📱 QR Code généré ! Allez sur https://whabot-1.onrender.com/qr pour le scanner.');
     qrcode.generate(qr, { small: true });
 });
 
 waClient.on('ready', () => {
+    latestQrData = ''; // Effacer le QR code
+    isConnected = true;
     console.log('✅ Bot WhatsApp connecté !');
 });
 
