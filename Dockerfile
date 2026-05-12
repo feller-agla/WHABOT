@@ -25,7 +25,7 @@ RUN chown -R pptruser:pptruser /home/pptruser/app
 USER pptruser
 
 # Variable environnement pour forcer PUPPETEER à utiliser le Chrome du système docker
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
 
 # Expose a port
 EXPOSE 3000
